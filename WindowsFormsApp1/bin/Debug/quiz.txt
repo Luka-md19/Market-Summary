@@ -1,0 +1,169 @@
+import java.util.*;
+
+class Node {
+    int value;
+    Node next;
+
+    Node(int value) {
+        this.value = value;
+        next = null;
+    }
+}
+
+public class Main {
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+
+        System.out.println("Enter the digits of List_X (separated by spaces): ");
+        Node listX = createLinkedList(scanner);
+
+        System.out.println("Enter the digits of List_Y (separated by spaces): ");
+        Node listY = createLinkedList(scanner);
+
+        // Determine which list is greater by comparing their lengths and individual digits.
+        boolean listXGreater = isListGreater(listX, listY);
+
+        // Subtract the smaller list from the greater list.
+        Node result;
+        if (listXGreater) {
+            result = subtractLists(listX, listY);
+        } else {
+            result = subtractLists(listY, listX);
+        }
+
+        System.out.print("Resultant_List: ");
+        printList(result);
+    }
+
+    public static Node subtractLists(Node greaterList, Node smallerList) {
+        // Reverse both lists to perform digit-wise subtraction.
+        greaterList = reverseList(greaterList);
+        smallerList = reverseList(smallerList);
+
+        Node result = null;
+        Node prev = null;
+        int borrow = 0;
+
+        while (greaterList != null || smallerList != null) {
+            int valueX = (greaterList != null) ? greaterList.value : 0;
+            int valueY = (smallerList != null) ? smallerList.value : 0;
+
+            // Perform digit-wise subtraction with borrowing.
+            int diff = valueX - valueY - borrow;
+            borrow = (diff < 0) ? 1 : 0;
+            diff = (diff < 0) ? diff + 10 : diff;
+
+            Node node = new Node(diff);
+
+            // Build the resulting list by inserting the subtraction result nodes.
+            if (result == null) {
+                result = node;
+            } else {
+                prev.next = node;
+            }
+            prev = node;
+
+            // Move to the next nodes in both lists.
+            if (greaterList != null) {
+                greaterList = greaterList.next;
+            }
+            if (smallerList != null) {
+                smallerList = smallerList.next;
+            }
+        }
+
+        // Reverse the result list to get the final result.
+        result = reverseList(result);
+
+        return result;
+    }
+
+    public static Node reverseList(Node head) {
+        Node prev = null;
+        Node current = head;
+
+        // Reverse the links between nodes to reverse the list.
+        while (current != null) {
+            Node next = current.next;
+            current.next = prev;
+            prev = current;
+            current = next;
+        }
+
+        return prev;
+    }
+
+    public static void printList(Node head) {
+        Node current = head;
+
+        // Print the values of the nodes in the list.
+        while (current != null) {
+            System.out.print(current.value + " ");
+            current = current.next;
+        }
+        System.out.println();
+    }
+
+    public static Node createLinkedList(Scanner scanner) {
+        Node dummy = new Node(0);
+        Node current = dummy;
+
+        // Create a linked list by inserting nodes with the provided values.
+        String input = scanner.nextLine();
+        String[] digits = input.split(" ");
+
+        for (String digit : digits) {
+            int value = Integer.parseInt(digit);
+            Node node = new Node(value);
+            current.next = node;
+            current = current.next;
+        }
+
+        return dummy.next;
+    }
+
+    public static boolean isListGreater(Node listX, Node listY) {
+        // Compare the lengths of the lists to determine which one is greater.
+        // If the lengths are different, the list with the greater length is considered greater.
+        // If the lengths are equal, compare the individual digits of the lists to determine the greater one.
+        // Return true if List_X is greater, false otherwise.
+        int lengthX = getListLength(listX);
+        int lengthY = getListLength(listY);
+
+        if (lengthX > lengthY) {
+            return true;
+        } else if (lengthX < lengthY) {
+            return false;
+        } else {
+            Node nodeX = listX;
+            Node nodeY = listY;
+
+            while (nodeX != null && nodeY != null) {
+                if (nodeX.value > nodeY.value) {
+                    return true;
+                } else if (nodeX.value < nodeY.value) {
+                    return false;
+                }
+
+                nodeX = nodeX.next;
+                nodeY = nodeY.next;
+            }
+
+            // If all digits are equal, it doesn't matter which list is considered greater.
+            return true;
+        }
+    }
+
+    public static int getListLength(Node head) {
+        int length = 0;
+        Node current = head;
+
+        // Count the number of nodes in the list to determine its length.
+        while (current != null) {
+            length++;
+            current = current.next;
+        }
+
+        return length;
+    }
+}
